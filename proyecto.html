@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CaseStore 2025</title>
+
+    <link rel="stylesheet" href="proyecto.css">
+
+    <!-- Iconos de Google Material -->
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+</head>
+
+<body>
+
+
+
+    <!-- Encabezado -->
+
+    <header class="header">
+
+        <div class="container header-content">
+
+            <button class="menu-btn" onclick="toggleMenu()">
+
+                <span class="material-icons">menu</span>
+
+            </button>
+
+           
+
+            <h1 class="logo">Case<span>Store</span></h1>
+
+
+
+            <div class="cart-icon" onclick="toggleCart()">
+
+                <span class="material-icons">shopping_cart</span>
+
+                <span id="cart-count">0</span>
+
+            </div>
+
+        </div>
+
+       
+
+        <!-- Menú de Navegación (Hamburguesa) -->
+
+        <nav class="nav-menu" id="nav-menu">
+
+            <button class="close-btn" onclick="toggleMenu()">&times;</button>
+
+            <a href="#" onclick="filterProducts('todos')">Todo</a>
+
+            <a href="#" onclick="filterProducts('celulares')">Celulares</a>
+
+            <a href="#" onclick="filterProducts('computadores')">Computadores</a>
+
+            <a href="#" onclick="filterProducts('audifonos')">Audífonos</a>
+
+        </nav>
+
+    </header>
+
+
+
+    <!-- Contenedor de Productos -->
+
+    <main class="container">
+
+        <h2 class="section-title">Nuestros Productos</h2>
+
+        <div id="product-container" class="product-grid">
+
+            <!-- Los productos se insertan aquí con JS -->
+
+        </div>
+
+    </main>
+
+
+
+    <!-- Carrito Lateral (Oculto por defecto) -->
+
+    <div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+
+    <div class="cart-sidebar" id="cart-sidebar">
+
+        <div class="cart-header">
+
+            <h3>Tu Carrito</h3>
+
+            <button class="close-cart" onclick="toggleCart()">&times;</button>
+
+        </div>
+
+        <div id="cart-items" class="cart-items">
+
+            <!-- Items del carrito -->
+
+        </div>
+
+        <div class="cart-footer">
+
+            <p>Total: $<span id="cart-total">0</span></p>
+
+            <button class="checkout-btn" onclick="checkout()">Comprar</button>
+
+        </div>
+
+    </div>
+
+
+
+   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+   <script src="proyecto.js"></script>
+   <script src="conexion.js"></script>
+
+</body>
+
+</html>
