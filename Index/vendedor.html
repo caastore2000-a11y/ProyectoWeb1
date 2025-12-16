@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Vendedor | CaseStore 2025</title>
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Nuestros scripts -->
+    <script type="module" src="/Script/config.js"></script>
+    <script type="module" src="/Script/conexion.js"></script>
+    <script type="module" src="/Script/database.js"></script>
+    <script type="module" src="/Script/auth.js"></script>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/Styles/vendedor.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="vendedor-container">
+        <!-- Header -->
+        <header class="vendedor-header">
+            <div class="logo">
+                <i class="fas fa-store"></i>
+                <h1>Case<span>Store</span></h1>
+            </div>
+            <div class="user-info">
+                <span id="vendedor-name">Cargando...</span>
+                <button onclick="logout()" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Salir
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="vendedor-main">
+            <!-- Sidebar -->
+            <nav class="vendedor-sidebar">
+                <ul class="nav-menu">
+                    <li>
+                        <a href="#" class="active" onclick="showSection('dashboard')">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="showSection('ventas')">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Ventas</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="showSection('productos')">
+                            <i class="fas fa-box"></i>
+                            <span>Productos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="showSection('clientes')">
+                            <i class="fas fa-users"></i>
+                            <span>Clientes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="showSection('reportes')">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Reportes</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Content Area -->
+            <div class="vendedor-content">
+                <!-- Dashboard -->
+                <section id="dashboard-section" class="content-section active">
+                    <h2><i class="fas fa-tachometer-alt"></i> Dashboard Vendedor</h2>
+                    
+                    <!-- Stats -->
+                    <div class="stats-cards">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Ventas Hoy</h3>
+                                <div class="stat-number" id="ventas-hoy">$0</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Órdenes Pendientes</h3>
+                                <div class="stat-number" id="ordenes-pendientes">0</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-box-open"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Productos Vendidos</h3>
+                                <div class="stat-number" id="productos-vendidos">0</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Calificación</h3>
+                                <div class="stat-number" id="calificacion">5.0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <h3>Acciones Rápidas</h3>
+                        <div class="action-buttons">
+                            <button class="btn-action" onclick="nuevaVenta()">
+                                <i class="fas fa-cash-register"></i>
+                                <span>Nueva Venta</span>
+                            </button>
+                            <button class="btn-action" onclick="verProductos()">
+                                <i class="fas fa-search"></i>
+                                <span>Buscar Producto</span>
+                            </button>
+                            <button class="btn-action" onclick="verClientes()">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Agregar Cliente</span>
+                            </button>
+                            <button class="btn-action" onclick="generarReporte()">
+                                <i class="fas fa-file-export"></i>
+                                <span>Generar Reporte</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="recent-activity">
+                        <h3>Actividad Reciente</h3>
+                        <div class="activity-list" id="activity-list">
+                            <!-- La actividad se cargará aquí -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Ventas -->
+                <section id="ventas-section" class="content-section">
+                    <h2><i class="fas fa-shopping-cart"></i> Gestión de Ventas</h2>
+                    
+                    <div class="section-actions">
+                        <button class="btn-primary" onclick="nuevaVenta()">
+                            <i class="fas fa-plus"></i> Nueva Venta
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table id="ventas-table">
+                            <thead>
+                                <tr>
+                                    <th>ID Venta</th>
+                                    <th>Cliente</th>
+                                    <th>Fecha</th>
+                                    <th>Productos</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ventas-body">
+                                <!-- Las ventas se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Productos -->
+                <section id="productos-section" class="content-section">
+                    <h2><i class="fas fa-box"></i> Productos</h2>
+                    
+                    <div class="product-filters">
+                        <input type="text" id="product-search" placeholder="Buscar producto...">
+                        <select id="product-category">
+                            <option value="">Todas las categorías</option>
+                        </select>
+                    </div>
+
+                    <div class="products-grid" id="products-grid">
+                        <!-- Los productos se cargarán aquí -->
+                    </div>
+                </section>
+
+                <!-- Clientes -->
+                <section id="clientes-section" class="content-section">
+                    <h2><i class="fas fa-users"></i> Clientes</h2>
+                    
+                    <div class="section-actions">
+                        <button class="btn-primary" onclick="agregarCliente()">
+                            <i class="fas fa-user-plus"></i> Agregar Cliente
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table id="clientes-table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Teléfono</th>
+                                    <th>Compras</th>
+                                    <th>Última Compra</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clientes-body">
+                                <!-- Los clientes se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Reportes -->
+                <section id="reportes-section" class="content-section">
+                    <h2><i class="fas fa-chart-bar"></i> Reportes</h2>
+                    
+                    <div class="reports-options">
+                        <div class="report-card" onclick="generarReporteVentas()">
+                            <i class="fas fa-chart-line"></i>
+                            <h3>Reporte de Ventas</h3>
+                            <p>Análisis detallado de ventas</p>
+                        </div>
+                        
+                        <div class="report-card" onclick="generarReporteProductos()">
+                            <i class="fas fa-box"></i>
+                            <h3>Productos Más Vendidos</h3>
+                            <p>Top 10 productos</p>
+                        </div>
+                        
+                        <div class="report-card" onclick="generarReporteClientes()">
+                            <i class="fas fa-users"></i>
+                            <h3>Mejores Clientes</h3>
+                            <p>Clientes más frecuentes</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Script para vendedor.html
+        async function initVendedor() {
+            // Verificar autenticación
+            const user = AuthService.obtenerUsuarioLocal();
+            
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            if (user.rol_id !== 2) {
+                alert('No tienes permisos para acceder al panel de vendedor');
+                window.location.href = 'proyecto.html';
+                return;
+            }
+            
+            // Configurar UI
+            document.getElementById('vendedor-name').textContent = user.nombre;
+            
+            // Cargar datos iniciales
+            await loadVendedorData();
+        }
+        
+        async function loadVendedorData() {
+            // Cargar estadísticas
+            await loadStats();
+            
+            // Cargar actividad reciente
+            await loadRecentActivity();
+            
+            // Cargar productos
+            await loadVendedorProducts();
+        }
+        
+        async function loadStats() {
+            try {
+                // Obtener productos
+                const { data: productos } = await DatabaseService.productos.obtenerTodos();
+                
+                // Calcular estadísticas de ejemplo
+                const totalProductos = productos?.length || 0;
+                const productosVendidos = Math.floor(totalProductos * 0.7); // Ejemplo
+                const ventasHoy = 1250000; // Ejemplo
+                const ordenesPendientes = 3; // Ejemplo
+                
+                // Actualizar UI
+                document.getElementById('ventas-hoy').textContent = 
+                    formatCurrency(ventasHoy);
+                document.getElementById('ordenes-pendientes').textContent = ordenesPendientes;
+                document.getElementById('productos-vendidos').textContent = productosVendidos;
+                
+            } catch (error) {
+                console.error('Error cargando estadísticas:', error);
+            }
+        }
+        
+        async function loadRecentActivity() {
+            const activityList = document.getElementById('activity-list');
+            
+            // Datos de ejemplo
+            const activities = [
+                { icon: 'shopping-cart', text: 'Venta realizada a Juan Pérez - $450,000', time: 'Hace 2 horas' },
+                { icon: 'user-plus', text: 'Nuevo cliente registrado: María Gómez', time: 'Hace 4 horas' },
+                { icon: 'box', text: 'Producto actualizado: iPhone 15 Pro', time: 'Hace 1 día' },
+                { icon: 'star', text: 'Calificación recibida: ★★★★★', time: 'Hace 2 días' }
+            ];
+            
+            let html = '';
+            activities.forEach(activity => {
+                html += `
+                    <div class="activity-item">
+                        <i class="fas fa-${activity.icon}"></i>
+                        <div class="activity-info">
+                            <p>${activity.text}</p>
+                            <span class="activity-time">${activity.time}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            activityList.innerHTML = html;
+        }
+        
+        async function loadVendedorProducts() {
+            try {
+                const { data: productos } = await DatabaseService.productos.obtenerTodos();
+                
+                const grid = document.getElementById('products-grid');
+                let html = '';
+                
+                productos?.slice(0, 12).forEach(producto => {
+                    html += `
+                        <div class="product-card">
+                            <img src="${producto.imagen_url || 'https://via.placeholder.com/150'}" 
+                                 alt="${producto.nombre}">
+                            <div class="product-info">
+                                <h4>${producto.nombre}</h4>
+                                <p class="product-price">${formatCurrency(producto.precio)}</p>
+                                <p class="product-stock">Stock: ${producto.stock}</p>
+                                <button class="btn-sell" onclick="venderProducto(${producto.id})">
+                                    <i class="fas fa-cart-plus"></i> Vender
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                grid.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error cargando productos:', error);
+            }
+        }
+        
+        // Funciones de navegación
+        function showSection(sectionId) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Mostrar la sección seleccionada
+            document.getElementById(`${sectionId}-section`).classList.add('active');
+            
+            // Actualizar navegación activa
+            document.querySelectorAll('.nav-menu a').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            const activeLink = document.querySelector(`.nav-menu a[onclick*="${sectionId}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+        
+        // Funciones de acción
+        function nuevaVenta() {
+            alert('Funcionalidad de nueva venta en desarrollo');
+        }
+        
+        function verProductos() {
+            showSection('productos');
+        }
+        
+        function verClientes() {
+            showSection('clientes');
+        }
+        
+        function generarReporte() {
+            showSection('reportes');
+        }
+        
+        function venderProducto(productId) {
+            alert(`Vender producto ${productId} - Funcionalidad en desarrollo`);
+        }
+        
+        function agregarCliente() {
+            alert('Agregar cliente - Funcionalidad en desarrollo');
+        }
+        
+        function generarReporteVentas() {
+            alert('Generar reporte de ventas - Funcionalidad en desarrollo');
+        }
+        
+        function generarReporteProductos() {
+            alert('Generar reporte de productos - Funcionalidad en desarrollo');
+        }
+        
+        function generarReporteClientes() {
+            alert('Generar reporte de clientes - Funcionalidad en desarrollo');
+        }
+        
+        // Funciones auxiliares
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('es-CO', {
+                style: 'currency',
+                currency: 'COP',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+        
+        async function logout() {
+            try {
+                await AuthService.logout();
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Error en logout:', error);
+            }
+        }
+        
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', initVendedor);
+        
+        // Exportar funciones globales
+        window.showSection = showSection;
+        window.nuevaVenta = nuevaVenta;
+        window.verProductos = verProductos;
+        window.verClientes = verClientes;
+        window.generarReporte = generarReporte;
+        window.venderProducto = venderProducto;
+        window.agregarCliente = agregarCliente;
+        window.generarReporteVentas = generarReporteVentas;
+        window.generarReporteProductos = generarReporteProductos;
+        window.generarReporteClientes = generarReporteClientes;
+        window.logout = logout;
+    </script>
+</body>
+</html>

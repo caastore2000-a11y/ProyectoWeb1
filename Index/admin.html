@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración | CaseStore 2025</title>
+    
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Configuración Supabase INLINE -->
+    <script>
+        // CONFIGURACIÓN SUPABASE
+        const SUPABASE_URL = 'https://tyitfffjbttftznadtrm.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5aXRmZmZqYnR0ZnR6bmFkdHJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzNzY1NDgsImV4cCI6MjA4MDk1MjU0OH0.UFw3kX6ay-hlYt-fALgu0wOOworkTIJTWcPX0CnUBqo';
+        
+        // Inicializar Supabase GLOBALMENTE
+        window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.log('🚀 Supabase inicializado para admin');
+    </script>
+    
+    <!-- CSS y iconos -->
+    <link rel="stylesheet" href="/Styles/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Scripts NORMALES (sin type="module") -->
+    <script src="/Script/admin-service.js"></script>
+    <script src="/Script/admin-main.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">Case<span>Store</span></div>
+            <h2>Panel de Administración</h2>
+        </div>
+        
+        <div class="nav-links">
+            <a href="#" class="active" onclick="showSection('dashboard')">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            
+            <a href="#" onclick="showSection('products')">
+                <i class="fas fa-box"></i>
+                <span>Productos</span>
+            </a>
+            
+            <a href="#" onclick="showSection('users')">
+                <i class="fas fa-users"></i>
+                <span>Usuarios</span>
+            </a>
+            
+            <a href="#" onclick="showSection('categories')">
+                <i class="fas fa-tags"></i>
+                <span>Categorías</span>
+            </a>
+            
+            <a href="#" onclick="showSection('orders')">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Órdenes</span>
+                <span class="badge" id="orders-badge">0</span>
+            </a>
+            
+            <a href="#" onclick="showSection('analytics')">
+                <i class="fas fa-chart-line"></i>
+                <span>Analítica</span>
+            </a>
+            
+            <a href="#" onclick="showSection('settings')">
+                <i class="fas fa-cog"></i>
+                <span>Configuración</span>
+            </a>
+        </div>
+        
+        <div class="sidebar-footer">
+            <div class="version">v1.0.0</div>
+            <div class="status" id="db-status">
+                <i class="fas fa-circle"></i> Conectado
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content" id="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="header-title" id="page-title">Dashboard</div>
+            </div>
+            
+            <div class="user-menu">
+                <div class="user-info">
+                    <div class="user-name" id="user-name">Cargando...</div>
+                    <div class="user-role">Administrador</div>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Salir
+                </button>
+            </div>
+        </header>
+
+        <!-- Content Sections -->
+        <div class="content">
+            <!-- Dashboard -->
+            <section id="dashboard-section" class="content-section active">
+                <div class="welcome-banner">
+                    <div class="welcome-text">
+                        <h1 id="welcome-message">Bienvenido, Administrador</h1>
+                        <p>Gestiona tu tienda desde el panel de control</p>
+                    </div>
+                    <div class="admin-badge">
+                        <i class="fas fa-crown"></i>
+                        <span>Administrador</span>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #667eea;">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Total Productos</h3>
+                            <div class="stat-number" id="total-products">0</div>
+                            <div class="stat-trend up" id="products-trend">
+                                <i class="fas fa-arrow-up"></i> 12% este mes
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #48bb78;">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Total Usuarios</h3>
+                            <div class="stat-number" id="total-users">0</div>
+                            <div class="stat-trend up" id="users-trend">
+                                <i class="fas fa-arrow-up"></i> 8% este mes
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #ed8936;">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Órdenes Hoy</h3>
+                            <div class="stat-number" id="orders-today">0</div>
+                            <div class="stat-trend up" id="orders-trend">
+                                <i class="fas fa-arrow-up"></i> 5% ayer
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #9f7aea;">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Ingresos del Mes</h3>
+                            <div class="stat-number" id="monthly-revenue">$0</div>
+                            <div class="stat-trend up" id="revenue-trend">
+                                <i class="fas fa-arrow-up"></i> 15% mes pasado
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Ventas Mensuales</h3>
+                            <select class="chart-filter" id="sales-filter">
+                                <option value="month">Este Mes</option>
+                                <option value="year">Este Año</option>
+                            </select>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="sales-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Productos Más Vendidos</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="top-products-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Órdenes Recientes</h3>
+                        <div class="table-actions">
+                            <button class="btn btn-primary" onclick="showSection('orders')">
+                                <i class="fas fa-eye"></i> Ver Todas
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="recent-orders-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cliente</th>
+                                    <th>Fecha</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-orders-body">
+                                <!-- Las órdenes se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Low Stock Products -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Productos con Stock Bajo</h3>
+                        <div class="table-actions">
+                            <button class="btn btn-warning" onclick="showLowStockProducts()">
+                                <i class="fas fa-exclamation-triangle"></i> Actualizar Stock
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="low-stock-table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Categoría</th>
+                                    <th>Stock Actual</th>
+                                    <th>Stock Mínimo</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="low-stock-body">
+                                <!-- Los productos se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Productos -->
+            <section id="products-section" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-box"></i> Gestión de Productos</h2>
+                    <button class="btn btn-success" onclick="showProductModal()">
+                        <i class="fas fa-plus"></i> Nuevo Producto
+                    </button>
+                </div>
+
+                <!-- Filtros -->
+                <div class="filters">
+                    <div class="search-box">
+                        <input type="text" id="product-search" placeholder="Buscar productos...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <select id="category-filter">
+                        <option value="">Todas las categorías</option>
+                    </select>
+                    <select id="stock-filter">
+                        <option value="">Todos los stocks</option>
+                        <option value="low">Stock Bajo</option>
+                        <option value="out">Agotados</option>
+                    </select>
+                </div>
+
+                <!-- Tabla de productos -->
+                <div class="table-card">
+                    <div class="table-responsive">
+                        <table id="products-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Imagen</th>
+                                    <th>Nombre</th>
+                                    <th>Categoría</th>
+                                    <th>Precio</th>
+                                    <th>Stock</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="products-body">
+                                <!-- Los productos se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-footer">
+                        <div class="pagination" id="products-pagination">
+                            <!-- Paginación se generará aquí -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Usuarios -->
+            <section id="users-section" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-users"></i> Gestión de Usuarios</h2>
+                    <button class="btn btn-success" onclick="showUserModal()">
+                        <i class="fas fa-user-plus"></i> Nuevo Usuario
+                    </button>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-responsive">
+                        <table id="users-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Rol</th>
+                                    <th>Registro</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-body">
+                                <!-- Los usuarios se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Categorías -->
+            <section id="categories-section" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-tags"></i> Gestión de Categorías</h2>
+                    <button class="btn btn-success" onclick="showCategoryModal()">
+                        <i class="fas fa-plus"></i> Nueva Categoría
+                    </button>
+                </div>
+
+                <div class="categories-grid" id="categories-grid">
+                    <!-- Las categorías se cargarán aquí -->
+                </div>
+            </section>
+
+            <!-- Órdenes -->
+            <section id="orders-section" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-shopping-cart"></i> Órdenes</h2>
+                    <div class="table-actions">
+                        <select id="order-status-filter">
+                            <option value="">Todos los estados</option>
+                            <option value="pending">Pendiente</option>
+                            <option value="processing">Procesando</option>
+                            <option value="completed">Completado</option>
+                            <option value="cancelled">Cancelado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-responsive">
+                        <table id="orders-table">
+                            <thead>
+                                <tr>
+                                    <th>Orden #</th>
+                                    <th>Cliente</th>
+                                    <th>Fecha</th>
+                                    <th>Productos</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-body">
+                                <!-- Las órdenes se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analítica -->
+            <section id="analytics-section" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-line"></i> Analítica</h2>
+                    <div class="date-range">
+                        <input type="date" id="analytics-start">
+                        <span>a</span>
+                        <input type="date" id="analytics-end">
+                        <button class="btn btn-primary" onclick="updateAnalytics()">
+                            <i class="fas fa-sync"></i> Actualizar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="analytics-grid">
+                    <div class="analytics-card full-width">
+                        <h3>Ingresos por Mes</h3>
+                        <div class="chart-container">
+                            <canvas id="revenue-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="analytics-card">
+                        <h3>Usuarios por Rol</h3>
+                        <div class="chart-container">
+                            <canvas id="users-role-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="analytics-card">
+                        <h3>Productos por Categoría</h3>
+                        <div class="chart-container">
+                            <canvas id="products-category-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Configuración -->
+            <section id="settings-section" class="content-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-cog"></i> Configuración</h2>
+                </div>
+
+                <div class="settings-grid">
+                    <div class="settings-card">
+                        <h3><i class="fas fa-store"></i> Configuración de Tienda</h3>
+                        <form id="store-settings">
+                            <div class="form-group">
+                                <label>Nombre de la Tienda</label>
+                                <input type="text" class="form-control" id="store-name" value="CaseStore 2025">
+                            </div>
+                            <div class="form-group">
+                                <label>Email de Contacto</label>
+                                <input type="email" class="form-control" id="store-email" value="contacto@casestore.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Teléfono</label>
+                                <input type="tel" class="form-control" id="store-phone" value="+57 123 456 7890">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        </form>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3><i class="fas fa-bell"></i> Notificaciones</h3>
+                        <div class="settings-options">
+                            <label class="switch">
+                                <input type="checkbox" id="email-notifications" checked>
+                                <span class="slider"></span>
+                                <span>Notificaciones por Email</span>
+                            </label>
+                            <label class="switch">
+                                <input type="checkbox" id="low-stock-alerts" checked>
+                                <span class="slider"></span>
+                                <span>Alertas de Stock Bajo</span>
+                            </label>
+                            <label class="switch">
+                                <input type="checkbox" id="new-order-alerts" checked>
+                                <span class="slider"></span>
+                                <span>Nuevas Órdenes</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3><i class="fas fa-shield-alt"></i> Seguridad</h3>
+                        <button class="btn btn-warning" onclick="showBackupModal()">
+                            <i class="fas fa-database"></i> Crear Backup
+                        </button>
+                        <button class="btn btn-danger" onclick="showResetModal()">
+                            <i class="fas fa-trash"></i> Limpiar Cache
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Loading State -->
+            <div class="loading" id="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Cargando datos...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales -->
+    
+    <!-- Modal Producto -->
+    <div class="modal" id="product-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="product-modal-title">Nuevo Producto</h3>
+                <button class="close-modal" onclick="closeProductModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="product-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre del Producto *</label>
+                            <input type="text" class="form-control" id="product-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Categoría *</label>
+                            <select class="form-control" id="product-category" required>
+                                <option value="">Seleccionar categoría</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <textarea class="form-control" id="product-description" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Precio (COP) *</label>
+                            <input type="number" class="form-control" id="product-price" min="0" step="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Stock *</label>
+                            <input type="number" class="form-control" id="product-stock" min="0" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>URL de la Imagen</label>
+                        <input type="url" class="form-control" id="product-image" placeholder="https://ejemplo.com/imagen.jpg">
+                        <div class="image-preview" id="image-preview"></div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeProductModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Producto</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Usuario -->
+    <div class="modal" id="user-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nuevo Usuario</h3>
+                <button class="close-modal" onclick="closeUserModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="user-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre Completo *</label>
+                            <input type="text" class="form-control" id="user-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email *</label>
+                            <input type="email" class="form-control" id="user-email" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Contraseña *</label>
+                            <input type="password" class="form-control" id="user-password" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Rol *</label>
+                            <select class="form-control" id="user-role" required>
+                                <option value="1">Administrador</option>
+                                <option value="2">Vendedor</option>
+                                <option value="3">Cliente</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeUserModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Crear Usuario</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirmación -->
+    <div class="modal" id="confirm-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="confirm-title">Confirmar Acción</h3>
+                <button class="close-modal" onclick="closeConfirmModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-message">¿Estás seguro de realizar esta acción?</p>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeConfirmModal()">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirm-action-btn">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script principal -->
+    <script src="/Script/admin-main.js"></script>
+</body>
+</html>

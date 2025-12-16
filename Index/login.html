@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | CaseStore 2025</title>
+    <link rel="stylesheet" href="/Styles/login.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="login-box animated-box">
+            <h2>Bienvenido</h2>
+            <p class="subtitle">Ingresa a tu cuenta</p>
+
+            <div class="input-group">
+                <span class="material-icons icon">mail</span>
+                <input id="email" type="email" placeholder="Correo" required>
+            </div>
+
+            <div class="input-group">
+                <span class="material-icons icon">lock</span>
+                <input id="password" type="password" placeholder="Contraseña" required>
+            </div>
+
+            <button onclick="login()" class="btn-login">Ingresar</button>
+
+            <p id="error-message" class="error"></p>
+            
+            <!-- Enlaces adicionales -->
+            <div class="login-options">
+                <p>¿No tienes cuenta? <a href="registrarse.html">Regístrate aquí</a></p>
+                <p><a href="proyecto.html">Volver a la tienda</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- TODO EL CÓDIGO JS EN UN SOLO SCRIPT -->
+    <script>
+        // ========== CONFIGURACIÓN SUPABASE ==========
+        const SUPABASE_URL = 'https://tyitfffjbttftznadtrm.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5aXRmZmZqYnR0ZnR6bmFkdHJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzNzY1NDgsImV4cCI6MjA4MDk1MjU0OH0.UFw3kX6ay-hlYt-fALgu0wOOworkTIJTWcPX0CnUBqo';
+        
+        // Inicializar Supabase
+        window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.log('✅ Supabase inicializado en login');
+
+        // ========== FUNCIÓN DE LOGIN ==========
+        async function login() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorMsg = document.getElementById('error-message');
+
+            errorMsg.textContent = "";
+            errorMsg.style.display = "none";
+
+            if (!email || !password) {
+                mostrarError("Completa todos los campos.");
+                return;
+            }
+
+            try {
+                console.log('🔑 Intentando login:', email);
+                
+                // Login con Supabase
+                const { data, error } = await window.supabase.auth.signInWithPassword({ 
+                    email, 
+                    password 
+                });
+
+                if (error) {
+                    console.error('Error de login:', error.message);
+                    mostrarError("Credenciales incorrectas. Verifica tu email y contraseña.");
+                    return;
+                }
+
+                console.log('✅ Login exitoso, obteniendo información del usuario...');
+                
+                // Obtener datos del usuario desde la tabla 'usuarios'
+                const { data: usuario, error: userError } = await window.supabase
+                    .from('usuarios')
+                    .select('*')
+                    .eq('id', data.user.id)
+                    .single();
+
+                if (userError) {
+                    console.error('Error obteniendo usuario:', userError);
+                    // Si no existe en la tabla, crear un usuario básico
+                    const usuarioBasico = {
+                        id: data.user.id,
+                        email: data.user.email,
+                        nombre: data.user.email.split('@')[0],
+                        rol_id: 3 // Cliente por defecto
+                    };
+                    
+                    // Guardar en localStorage
+                    guardarUsuario(usuarioBasico);
+                    redirigirPorRol(usuarioBasico.rol_id);
+                    return;
+                }
+
+                // Guardar usuario en localStorage
+                guardarUsuario(usuario);
+                
+                // Redirigir según el rol
+                redirigirPorRol(usuario.rol_id);
+
+            } catch (error) {
+                console.error('Error en login:', error);
+                mostrarError("Error de conexión. Intenta nuevamente.");
+            }
+        }
+
+        // ========== FUNCIONES AUXILIARES ==========
+        function guardarUsuario(usuario) {
+            try {
+                localStorage.setItem('usuario', JSON.stringify(usuario));
+                localStorage.setItem('user_role', usuario.rol_id);
+                console.log('✅ Usuario guardado:', usuario.nombre);
+            } catch (error) {
+                console.error('Error guardando usuario:', error);
+            }
+        }
+
+        function redirigirPorRol(rol_id) {
+            const rutas = {
+                1: 'admin.html',
+                2: 'vendedor.html',
+                3: 'proyecto.html'
+            };
+            
+            const ruta = rutas[rol_id] || 'proyecto.html';
+            console.log(`🔀 Redirigiendo a: ${ruta} (rol: ${rol_id})`);
+            
+            // Pequeña pausa para que el usuario vea el mensaje
+            setTimeout(() => {
+                window.location.href = ruta;
+            }, 500);
+        }
+
+        function mostrarError(mensaje) {
+            const errorMsg = document.getElementById('error-message');
+            errorMsg.textContent = mensaje;
+            errorMsg.style.display = "block";
+            
+            // Auto-ocultar después de 5 segundos
+            setTimeout(() => {
+                errorMsg.style.display = "none";
+            }, 5000);
+        }
+
+        function goBack() {
+            window.location.href = 'proyecto.html';
+        }
+
+        function backToStore() {
+            window.location.href = 'proyecto.html';
+        }
+
+        // ========== INICIALIZACIÓN ==========
+        console.log('✅ Login page cargada');
+        
+        // Hacer funciones globales
+        window.login = login;
+        window.goBack = goBack;
+        window.backToStore = backToStore;
+        
+        // Enfocar el campo email al cargar
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('email')?.focus();
+        });
+    </script>
+</body>
+</html>
