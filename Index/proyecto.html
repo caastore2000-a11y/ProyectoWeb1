@@ -12,7 +12,7 @@
     
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
+    <script src="/Script/proyecto.js"></script>
     <!-- Configuración básica -->
     <script>
         // Solo configuración esencial
@@ -21,13 +21,19 @@
         
         window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         console.log('✅ Supabase configurado');
+        
     </script>
 </head>
 <body>
 
     <!-- ENCABEZADO -->
+
     <header class="header">
+        
         <div class="container header-content">
+            <button class="theme-btn" id="theme-btn" aria-label="Cambiar tema">
+    <span class="material-icons" id="theme-icon">dark_mode</span>
+</button>
             <button class="menu-btn" aria-label="Abrir menú">
                 <span class="material-icons">menu</span>
             </button>
@@ -41,6 +47,7 @@
                     <i class="fas fa-sign-out-alt"></i> Salir
                 </button>
             </div>
+            
 
             <button class="cart-icon" aria-label="Abrir carrito">
                 <span class="material-icons">shopping_cart</span>
@@ -56,10 +63,16 @@
             <a href="#">Computadores</a>
             <a href="#">Audífonos</a>
             
+            <div class="lang-switch">
+  <button onclick="changeLanguage('es')" class="flag-btn">🇪🇸</button>
+  <button onclick="changeLanguage('en')" class="flag-btn">EN</button>
+</div>
+            
             <div class="auth-links">
                 <a href="login.html" id="login-link">Iniciar Sesión</a>
                 <a href="registrarse.html" id="register-link">Registrarse</a>
             </div>
+            
         </nav>
     </header>
 

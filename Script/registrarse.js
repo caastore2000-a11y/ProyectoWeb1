@@ -276,76 +276,66 @@ class RegistrationSystem {
     // ============================================================
     
     async handleSubmit(event) {
-        event.preventDefault();
-        
-        // Evitar múltiples envíos
-        if (this.isSubmitting) {
-            return;
-        }
-        
-        // Validar formulario
-        if (!this.validateForm()) {
-            this.showNotification('Por favor, corrige los errores en el formulario', 'error');
-            return;
-        }
-        
-        // Iniciar proceso de envío
-        this.isSubmitting = true;
-        this.updateSubmitButton(true);
-        
-        try {
-            // Obtener datos del formulario
-            const formData = new FormData(event.target);
-            const userData = {
-                email: formData.get('email'),
-                password: formData.get('password'),
-                nombre: formData.get('nombre')
-            };
-            
-            console.log('📤 Procesando registro para:', userData.email);
-            
-            // PASO 1: Registro en Supabase Auth
-            const authResult = await this.registerInAuth(userData);
-            
-            if (!authResult.success) {
-                throw new Error(authResult.error);
-            }
-            
-            // PASO 2: Insertar en tabla usuarios
-            const dbResult = await this.insertIntoUsers(userData);
-            
-            if (!dbResult.success) {
-                // Si falla el INSERT, intentar limpiar el usuario de auth
-                if (authResult.userId) {
-                    await this.cleanupFailedRegistration(authResult.userId);
-                }
-                throw new Error(dbResult.error);
-            }
-            
-            // PASO 3: Éxito completo
-            await this.handleRegistrationSuccess(userData, authResult.userId);
-            
-        } catch (error) {
-            console.error('❌ Error en registro:', error);
-            this.showNotification(error.message || 'Error al crear la cuenta', 'error');
-            
-        } finally {
-            // Restaurar estado del botón
-            this.isSubmitting = false;
-            this.updateSubmitButton(false);
-        }
+    event.preventDefault();
+    
+    // Evitar múltiples envíos
+    if (this.isSubmitting) return;
+    
+    // Validar formulario
+    if (!this.validateForm()) {
+        this.showNotification('Por favor, corrige los errores en el formulario', 'error');
+        return;
     }
     
-    async registerInAuth(userData) {
-        console.log('🔐 Registrando en Supabase Auth...');
+    this.isSubmitting = true;
+    this.updateSubmitButton(true);
+    
+    try {
+        const formData = new FormData(event.target);
+        const userData = {
+            email: formData.get('email'),
+            password: formData.get('password'),
+            nombre: formData.get('nombre')
+        };
         
+        console.log('📤 Procesando registro para:', userData.email);
+        
+        // PASO 1: Registro en Supabase Auth
+        // Es vital que registerInAuth envíe el 'nombre' en options.data
+        const authResult = await this.registerInAuth(userData);
+        
+        if (!authResult.success) {
+            throw new Error(authResult.error);
+        }
+
+        // ✅ IMPORTANTE: Aquí NO debe haber ningún insert manual.
+        // El Trigger en la base de datos se activa automáticamente 
+        // después de que registerInAuth tiene éxito.
+           
+        // PASO 2: Manejo de éxito local (Local Storage y Redirección)
+        await this.handleRegistrationSuccess(userData, authResult.userId);
+        
+    } catch (error) {
+        console.error('❌ Error en registro:', error);
+        this.showNotification(error.message || 'Error al crear la cuenta', 'error');
+    } finally {
+        this.isSubmitting = false;
+        this.updateSubmitButton(false);
+    }
+}
+    
+    async registerInAuth(userData) {
+    console.log('🔐 Registrando en Supabase Auth...');
+    
+    try {
         const { data, error } = await this.supabase.auth.signUp({
             email: userData.email,
             password: userData.password,
             options: {
+                // Asegúrate de que 'nombre' sea exactamente lo que espera el Trigger SQL
                 data: {
                     nombre: userData.nombre,
-                    rol: 'cliente'
+                    rol_id: 2 // Enviamos el ID numérico que espera tu tabla 'usuarios'
                 },
                 emailRedirectTo: `${window.location.origin}/proyecto.html`
             }
@@ -359,10 +349,11 @@ class RegistrationSystem {
             };
         }
         
+        // Supabase puede devolver un usuario pero pedir confirmación de email
         if (!data.user) {
             return {
                 success: false,
-                error: 'No se pudo crear el usuario en el sistema de autenticación'
+                error: 'No se pudo crear el usuario. Verifica los datos.'
             };
         }
         
@@ -373,7 +364,12 @@ class RegistrationSystem {
             userId: data.user.id,
             authData: data
         };
+
+    } catch (err) {
+        console.error('❌ Error inesperado:', err);
+        return { success: false, error: 'Ocurrió un error inesperado en el servidor' };
     }
+}
     
     async insertIntoUsers(userData) {
         console.log('💾 Insertando en tabla usuarios...');
@@ -382,10 +378,10 @@ class RegistrationSystem {
         const { data, error } = await this.supabase
             .from('usuarios')
             .insert({
-                rol_id: 3,  // ID del rol 'cliente' en tu base de datos
+                rol_id: 2,  // ID del rol 'cliente' en tu base de datos
                 nombre: userData.nombre,
                 email: userData.email
-                // ⚠️ NO incluyas 'id' aquí - se usará DEFAULT auth.uid()
+               
             })
             .select()
             .single();
@@ -419,25 +415,26 @@ class RegistrationSystem {
     }
     
     async handleRegistrationSuccess(userData, userId) {
-        // Guardar información localmente
-        localStorage.setItem('usuario', JSON.stringify({
-            id: userId,
-            nombre: userData.nombre,
-            email: userData.email,
-            rol_id: 3
-        }));
-        
-        // Mostrar mensaje de éxito
-        this.showNotification(
-            '¡Cuenta creada exitosamente! Revisa tu correo para confirmar tu cuenta.',
-            'success'
-        );
-        
-        // Redirigir después de 3 segundos
-        setTimeout(() => {
-            window.location.href = 'proyecto.html';
-        }, 3000);
-    }
+    // 1. Guardar información localmente
+    // Cambiamos rol_id a 2 (Cliente) para que coincida con tu base de datos
+    localStorage.setItem('usuario', JSON.stringify({
+        id: userId,
+        nombre: userData.nombre,
+        email: userData.email,
+        rol_id: 2 // Antes tenías 3, pero en SQL configuramos 2 para Clientes
+    }));
+    
+    // 2. Mostrar mensaje de éxito
+    this.showNotification(
+        '¡Cuenta creada exitosamente! Revisa tu correo para confirmar tu cuenta.',
+        'success'
+    );
+    
+    // 3. Redirigir al inicio
+    setTimeout(() => {
+        window.location.href = 'proyecto.html';
+    }, 3000);
+}
     
     getAuthErrorMessage(authError) {
         const messages = {

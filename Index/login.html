@@ -117,14 +117,19 @@
 
         // ========== FUNCIONES AUXILIARES ==========
         function guardarUsuario(usuario) {
-            try {
-                localStorage.setItem('usuario', JSON.stringify(usuario));
-                localStorage.setItem('user_role', usuario.rol_id);
-                console.log('✅ Usuario guardado:', usuario.nombre);
-            } catch (error) {
-                console.error('Error guardando usuario:', error);
-            }
-        }
+    try {
+        // Guardamos todo el objeto para tener nombre, email, etc.
+        localStorage.setItem('usuario', JSON.stringify(usuario));
+        
+        // IMPORTANTE: Guardar el ID de usuario y el ROL con los nombres que espera roles.js
+        localStorage.setItem('usuario_id', usuario.id); 
+        localStorage.setItem('rol', usuario.rol_id); // Guardamos el ID numérico (1, 2 o 3)
+        
+        console.log('✅ Datos de sesión guardados');
+    } catch (error) {
+        console.error('Error guardando usuario:', error);
+    }
+}
 
         function redirigirPorRol(rol_id) {
             const rutas = {

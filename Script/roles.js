@@ -1,37 +1,36 @@
 // roles.js
 // Protección de rutas según el rol del usuario
 
-// Función para obtener el rol guardado en localStorage
+// roles.js actualizado
 function getUserRole() {
-  return localStorage.getItem('rol');
+    // Convertimos a número para asegurar la comparación
+    return parseInt(localStorage.getItem('rol'));
 }
 
-// Función para saber si el usuario está logueado
 function isLoggedIn() {
-  return localStorage.getItem('usuario_id') !== null;
+    return localStorage.getItem('usuario_id') !== null;
 }
 
-// Función principal de protección
 function protegerRuta(rolPermitido) {
-  if (!isLoggedIn()) {
-    alert('Debes iniciar sesión primero.');
-    window.location.href = 'login.html';
-    return;
-  }
+    if (!isLoggedIn()) {
+        window.location.href = 'login.html';
+        return;
+    }
 
-  const rolActual = getUserRole();
+    const rolActual = getUserRole();
 
-  if (rolActual !== rolPermitido) {
-    alert('No tienes permiso para acceder a esta página.');
-
-    // Redirección inteligente según el rol
-    if (rolActual === 'administrador') window.location.href = 'dashboard_admin.html';
-    if (rolActual === 'vendedor') window.location.href = 'dashboard_vendedor.html';
-    if (rolActual === 'cliente') window.location.href = 'dashboard_cliente.html';
-  }
+    // Comparamos números (1 = Admin, 2 = Vendedor, 3 = Cliente)
+    if (rolActual !== rolPermitido) {
+        alert('No tienes permiso para acceder a esta página.');
+        
+        // Redirección inteligente
+        const rutas = {
+            1: 'admin.html',
+            2: 'vendedor.html',
+            3: 'proyecto.html'
+        };
+        window.location.href = rutas[rolActual] || 'proyecto.html';
+    }
 }
 
-// Ejemplo de uso para cada dashboard:
-// En dashboard_admin.html → protegerRuta('administrador');
-// En dashboard_vendedor.html → protegerRuta('vendedor');
-// En dashboard_cliente.html → protegerRuta('cliente');
+

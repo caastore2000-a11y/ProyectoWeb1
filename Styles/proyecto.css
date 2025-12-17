@@ -82,6 +82,9 @@
     box-sizing: border-box;
 }
 
+body.dark-theme .logo span {
+    color: var(--color-bg);
+}
 body {
     font-family: var(--font-family);
     font-size: var(--font-size-base);
@@ -147,6 +150,29 @@ body {
 .menu-btn:hover, .cart-icon:hover {
     background-color: var(--color-gray-100);
     color: var(--color-primary);
+}
+/* ========================================================== */
+/* REALCE DE BOTONES EN MODO OSCURO */
+/* ========================================================== */
+
+body.dark-theme .menu-btn,
+body.dark-theme .cart-icon {
+    color: var(--color-primary-light);
+    background-color: rgba(59, 130, 246, 0.18);
+    box-shadow: 
+        0 0 0 1px rgba(59, 130, 246, 0.45),
+        0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+/* Hover más fuerte en oscuro */
+body.dark-theme .menu-btn:hover,
+body.dark-theme .cart-icon:hover {
+    background-color: rgba(59, 130, 246, 0.35);
+    color: var(--color-primary-light);
+    transform: scale(1.1);
+    box-shadow:
+        0 0 0 1px rgba(59, 130, 246, 0.8),
+        0 0 14px rgba(59, 130, 246, 0.7);
 }
 
 .cart-icon {
@@ -234,6 +260,14 @@ body {
 #user-name {
     font-weight: 500;
     color: var(--color-gray-700);
+}
+/* ========================================================== */
+/* REALCE DEL NOMBRE DE USUARIO EN MODO OSCURO */
+/* ========================================================== */
+
+body.dark-theme #user-name {
+    color: var(--color-primary-light);
+    text-shadow: 0 0 6px rgba(59, 130, 246, 0.6);
 }
 
 .btn-logout {
@@ -1206,6 +1240,172 @@ main {
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--color-gray-500);
+}
+/* ========================================================== */
+/* 10. MODO OSCURO */
+/* ========================================================== */
+
+body.dark-theme {
+    /* Colores base */
+    --color-bg: #0f172a;
+    --color-light: #020617;
+    --color-dark: #e5e7eb;
+
+    /* Grises */
+    --color-gray-50: #020617;
+    --color-gray-100: #020617;
+    --color-gray-200: #1e293b;
+    --color-gray-300: #334155;
+    --color-gray-400: #64748b;
+    --color-gray-500: #94a3b8;
+    --color-gray-600: #cbd5f5;
+    --color-gray-700: #e2e8f0;
+    --color-gray-800: #f1f5f9;
+    --color-gray-900: #f8fafc;
+
+    /* Cards / paneles */
+    --color-card-bg: #020617;
+    --color-sidebar-bg: #020617;
+
+    /* Bordes */
+    --color-border: #1e293b;
+    --color-border-light: #334155;
+
+    /* Sombras más suaves */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.8);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.8);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.8);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.9);
+}
+
+/* Header en oscuro */
+body.dark-theme .header {
+    background-color: var(--color-gray-900);
+}
+
+/* Inputs */
+body.dark-theme input,
+body.dark-theme textarea,
+body.dark-theme select {
+    background-color: var(--color-gray-100);
+    color: var(--color-gray-800);
+    border-color: var(--color-border);
+}
+
+/* Modales */
+body.dark-theme .modal-content {
+    background-color: var(--color-gray-100);
+}
+
+/* Scrollbar oscuro */
+body.dark-theme ::-webkit-scrollbar-track {
+    background: var(--color-gray-200);
+}
+
+body.dark-theme ::-webkit-scrollbar-thumb {
+    background: var(--color-gray-500);
+}
+.theme-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-gray-700);
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius-md);
+    transition: all var(--transition-fast);
+}
+
+.theme-btn:hover {
+    background-color: var(--color-gray-100);
+    color: var(--color-primary);
+}
+body.dark-theme .theme-btn {
+    color: var(--color-primary-light);
+    background-color: rgba(59, 130, 246, 0.18);
+    box-shadow:
+        0 0 0 1px rgba(59, 130, 246, 0.45),
+        0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+/* Hover más visible */
+body.dark-theme .theme-btn:hover {
+    background-color: rgba(59, 130, 246, 0.35);
+    color: var(--color-primary-light);
+    transform: scale(1.08);
+    box-shadow:
+        0 0 0 1px rgba(59, 130, 246, 0.8),
+        0 0 14px rgba(59, 130, 246, 0.7);
+}
+.product-img {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.product-card:hover .product-img {
+    transform: scale(1.05);
+}
+
+
+
+/**/
+
+/* ========================================================== */
+/* BOTONES DE IDIOMA */
+/* ========================================================== */
+
+.lang-switch {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.lang-btn {
+    min-width: 42px;
+    height: 36px;
+    border-radius: var(--border-radius-full);
+    border: 2px solid var(--color-primary);
+    background-color: transparent;
+    color: var(--color-primary);
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lang-btn:hover {
+    background-color: var(--color-primary);
+    color: var(--color-light);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.lang-btn.active {
+    background-color: var(--color-primary);
+    color: var(--color-light);
+    box-shadow: var(--shadow-md);
+}
+
+/* ========================================================== */
+/* MODO OSCURO */
+/* ========================================================== */
+
+body.dark-theme .lang-btn {
+    border-color: var(--color-primary-light);
+    color: var(--color-primary-light);
+    background-color: rgba(59, 130, 246, 0.15);
+}
+
+body.dark-theme .lang-btn:hover {
+    background-color: rgba(59, 130, 246, 0.35);
+    box-shadow:
+        0 0 0 1px rgba(59, 130, 246, 0.7),
+        0 0 12px rgba(59, 130, 246, 0.6);
+}
+
+body.dark-theme .lang-btn.active {
+    background-color: var(--color-primary-light);
+    color: var(--color-gray-900);
 }
 
 /* ========================================================== */

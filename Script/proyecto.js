@@ -6,6 +6,43 @@ console.log('🛒 Cargando CaseStore...');
 let productos = [];
 let categorias = [];
 let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+let temaActual = localStorage.getItem('theme') || 'light';
+const LANGUAGES = {
+    es: {
+        search_placeholder: "Buscar productos...",
+        all_categories: "Todas las categorías",
+        results_zero: "No se encontraron productos",
+        results_one: "producto encontrado",
+        results_many: "productos encontrados",
+        add: "Agregar",
+        view: "Ver",
+        out_stock: "Agotado",
+        available: "disponibles",
+        cart_empty: "Tu carrito está vacío",
+        continue: "Continuar comprando",
+        buy_success: "¡Compra realizada con éxito!",
+        login_required: "Debes iniciar sesión para comprar",
+        loading: "Cargando productos..."
+    },
+    en: {
+        search_placeholder: "Search products...",
+        all_categories: "All categories",
+        results_zero: "No products found",
+        results_one: "product found",
+        results_many: "products found",
+        add: "Add",
+        view: "View",
+        out_stock: "Out of stock",
+        available: "available",
+        cart_empty: "Your cart is empty",
+        continue: "Continue shopping",
+        buy_success: "Purchase completed successfully!",
+        login_required: "You must log in to purchase",
+        loading: "Loading products..."
+    }
+};
+
+let currentLanguage = localStorage.getItem("language") || "es";
 
 // ========== DATABASE SERVICE ==========
 const DatabaseService = {
@@ -129,14 +166,14 @@ const AuthService = {
     },
     
     guardarSesion(usuario) {
-        try {
-            localStorage.setItem('usuario', JSON.stringify(usuario));
-            localStorage.setItem('user_role', usuario.rol_id);
-            console.log('✅ Sesión guardada');
-        } catch (error) {
-            console.error('Error guardando sesión:', error);
-        }
-    },
+    try {
+        localStorage.setItem('usuario', JSON.stringify(usuario));
+        localStorage.setItem('user_role', usuario.rol_id); 
+        console.log('✅ Sesión guardada con rol:', usuario.rol_id);
+    } catch (error) {
+        console.error('Error guardando sesión:', error);
+    }
+},
     
     async logout() {
         try {
@@ -158,6 +195,31 @@ const AuthService = {
         return !!this.obtenerUsuarioLocal();
     }
 };
+// ========== TEMA CLARO / OSCURO ==========
+function aplicarTemaInicial() {
+    if (temaActual === 'dark') {
+        document.body.classList.add('dark-theme');
+        actualizarIconoTema(true);
+    }
+}
+
+function toggleTema() {
+    document.body.classList.toggle('dark-theme');
+    const esOscuro = document.body.classList.contains('dark-theme');
+
+    temaActual = esOscuro ? 'dark' : 'light';
+    localStorage.setItem('theme', temaActual);
+
+    actualizarIconoTema(esOscuro);
+}
+
+function actualizarIconoTema(esOscuro) {
+    const icon = document.getElementById('theme-icon');
+    if (!icon) return;
+
+    icon.textContent = esOscuro ? 'light_mode' : 'dark_mode';
+}
+
 
 // ========== FUNCIONES PRINCIPALES ==========
 async function initApp() {
@@ -235,6 +297,10 @@ function configurarEventListeners() {
     if (productForm) {
         productForm.addEventListener('submit', guardarProducto);
     }
+    const themeBtn = document.getElementById('theme-btn');
+if (themeBtn) {
+    themeBtn.addEventListener('click', toggleTema);
+}
 }
 
 function verificarAutenticacion() {
@@ -339,9 +405,13 @@ function renderizarProductos() {
                 
                 <div class="product-image">
                     <img src="${producto.imagen_url || 'https://via.placeholder.com/300x200/CCCCCC/666666?text=Producto'}" 
-                         alt="${producto.nombre}"
+                    data-hover="${producto.imagen_hover_url || producto.imagen_url}"     
+                    alt="${producto.nombre}"
+                    class="product-img"
                          onerror="this.src='https://via.placeholder.com/300x200/CCCCCC/666666?text=Imagen+No+Disponible'">
-                </div>
+                         </div>
+                
+
                 
                 <div class="product-info">
                     <h3 class="product-title">${producto.nombre}</h3>
@@ -776,6 +846,23 @@ function mostrarNotificacion(mensaje, tipo = 'info') {
             }
         }, 300);
     }, 3000);
+    document.addEventListener('mouseover', e => {
+    const img = e.target.closest('.product-img');
+    if (!img || !img.dataset.hover) return;
+
+    img.dataset.original = img.src;
+    img.src = img.dataset.hover;
+});
+
+document.addEventListener('mouseout', e => {
+    const img = e.target.closest('.product-img');
+    if (!img || !img.dataset.original) return;
+
+    img.src = img.dataset.original;
+});
+
+   
+
 }
 
 // ========== INICIALIZACIÓN ==========

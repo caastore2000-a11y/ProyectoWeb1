@@ -2,6 +2,8 @@
 import { AdminService } from './admin-service.js';
 import { AuthService } from './auth.js';
 
+// Solo permite entrar si el rol es 1 (Administrador)
+protegerRuta(1);
 // Variables globales
 let currentUser = null;
 let charts = {};
