@@ -3,121 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CaseStore 2025 - Tienda Online</title>
-    <link rel="stylesheet" href="/Styles/proyecto.css">
+    <title>Registro - CaseStore 2025</title>
+    
+    <!-- Metadatos -->
+    <meta name="description" content="Regístrate en CaseStore para comprar productos tecnológicos">
+    <meta name="keywords" content="tecnología, registro, tienda online, productos">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/Styles/registro.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-
-    <!-- ENCABEZADO -->
+    <!-- Cabecera principal -->
     <header class="header">
-        <div class="container header-content">
-            <button class="menu-btn" id="menu-btn">
-                <span class="material-icons">menu</span>
-            </button>
-
-            <h1 class="logo">Case<span>Store</span></h1>
+        <section class="container header-content">
+            <a href="proyecto.html" class="logo">
+                <h1>Case<span>Store</span></h1>
+            </a>
             
-            <!-- Información del usuario -->
-            <div class="user-info" id="user-info">
-                <span id="user-name">Invitado</span>
-                <button id="btn-logout" class="btn-logout" style="display: none;">
-                    <i class="fas fa-sign-out-alt"></i> Salir
-                </button>
-            </div>
-
-            <button class="cart-icon" id="cart-icon">
-                <span class="material-icons">shopping_cart</span>
-                <span id="cart-count">0</span>
-            </button>
-        </div>
-
-        <!-- MENÚ -->
-        <nav class="nav-menu" id="nav-menu">
-            <button class="close-btn" id="close-menu-btn">&times;</button>
-            <a href="#" id="filter-all">Todo</a>
-            <a href="#" id="filter-phones">Celulares</a>
-            <a href="#" id="filter-computers">Computadores</a>
-            <a href="#" id="filter-headphones">Audífonos</a>
-            
-            <div class="auth-links">
-                <a href="login.html" id="login-link">Iniciar Sesión</a>
-                <a href="registrarse.html" id="register-link">Registrarse</a>
-            </div>
-        </nav>
+            <nav aria-label="Navegación principal">
+                <ul class="nav-list">
+                    <li>
+                        <a href="proyecto.html" class="nav-link">
+                            <i class="fas fa-store" aria-hidden="true"></i>
+                            <span>Volver a la Tienda</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="login.html" class="nav-link">
+                            <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
+                            <span>Iniciar Sesión</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </section>
     </header>
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <main class="container">
-        <h2 class="section-title" id="section-title">Nuestros Productos</h2>
-        
-        <!-- Barra de búsqueda -->
-        <div class="search-bar">
-            <input type="text" id="search-input" placeholder="Buscar productos...">
-            <button id="search-btn">
-                <i class="fas fa-search"></i>
-            </button>
-        </div>
-        
-        <!-- Filtros -->
-        <div class="filters">
-            <select id="filter-category">
-                <option value="all">Todas las categorías</option>
-            </select>
+    <!-- Contenido principal -->
+    <main class="main-registro">
+        <article class="registro-container">
+            <header class="registro-header">
+                <h2 class="registro-title">Crear Cuenta en CaseStore</h2>
+                <p class="registro-subtitle">Únete a nuestra comunidad y descubre los mejores productos tecnológicos</p>
+            </header>
             
-            <select id="filter-price">
-                <option value="all">Todos los precios</option>
-                <option value="low">Menos de $500,000</option>
-                <option value="medium">$500,000 - $2,000,000</option>
-                <option value="high">Más de $2,000,000</option>
-            </select>
-        </div>
-        
-        <!-- Contador de resultados -->
-        <p id="results-count">Cargando productos...</p>
-        
-        <!-- Panel de administración -->
-        <div class="admin-panel" id="admin-panel" style="display: none;">
-            <h3><i class="fas fa-cog"></i> Panel de Administración</h3>
-            <button id="add-product-btn" class="btn-add">
-                <i class="fas fa-plus"></i> Agregar Producto
-            </button>
-        </div>
-        
-        <!-- Grid de productos -->
-        <div id="product-container" class="product-grid">
-            <!-- Los productos se cargarán aquí -->
-        </div>
+            <!-- Formulario de registro -->
+            <form id="registerForm" class="registro-form" novalidate>
+                <!-- Información personal -->
+                <fieldset>
+                    <legend>
+                        <i class="fas fa-user-circle" aria-hidden="true"></i>
+                        Información Personal
+                    </legend>
+                    
+                    <section class="form-section">
+                        <label for="nombre">
+                            <i class="fas fa-user" aria-hidden="true"></i>
+                            Nombre Completo
+                            <span class="required" aria-hidden="true">*</span>
+                        </label>
+                        <input type="text" 
+                               id="nombre" 
+                               name="nombre" 
+                               placeholder="Ej: María González" 
+                               required 
+                               aria-required="true"
+                               aria-describedby="nombre-error">
+                        <small id="nombre-error" class="error-message" role="alert"></small>
+                    </section>
+                    
+                    <section class="form-section">
+                        <label for="email">
+                            <i class="fas fa-envelope" aria-hidden="true"></i>
+                            Correo Electrónico
+                            <span class="required" aria-hidden="true">*</span>
+                        </label>
+                        <input type="email" 
+                               id="email" 
+                               name="email" 
+                               placeholder="ejemplo@correo.com" 
+                               required 
+                               aria-required="true"
+                               aria-describedby="email-error">
+                        <small id="email-error" class="error-message" role="alert"></small>
+                    </section>
+                </fieldset>
+                
+                <!-- Seguridad -->
+                <fieldset>
+                    <legend>
+                        <i class="fas fa-lock" aria-hidden="true"></i>
+                        Seguridad
+                    </legend>
+                    
+                    <section class="form-section">
+                        <label for="password">
+                            <i class="fas fa-key" aria-hidden="true"></i>
+                            Contraseña
+                            <span class="required" aria-hidden="true">*</span>
+                        </label>
+                        <input type="password" 
+                               id="password" 
+                               name="password" 
+                               placeholder="Mínimo 8 caracteres" 
+                               required 
+                               aria-required="true"
+                               aria-describedby="password-error password-strength">
+                        <small id="password-error" class="error-message" role="alert"></small>
+                        
+                        <meter id="password-strength" 
+                               min="0" 
+                               max="4" 
+                               value="0"
+                               low="1"
+                               high="3"
+                               optimum="4"
+                               aria-label="Fortaleza de la contraseña">
+                        </meter>
+                        <span id="password-strength-text" class="strength-text">Seguridad de la contraseña</span>
+                    </section>
+                    
+                    <section class="form-section">
+                        <label for="confirmPassword">
+                            <i class="fas fa-key" aria-hidden="true"></i>
+                            Confirmar Contraseña
+                            <span class="required" aria-hidden="true">*</span>
+                        </label>
+                        <input type="password" 
+                               id="confirmPassword" 
+                               name="confirmPassword" 
+                               placeholder="Repite tu contraseña" 
+                               required 
+                               aria-required="true"
+                               aria-describedby="confirmPassword-error">
+                        <small id="confirmPassword-error" class="error-message" role="alert"></small>
+                    </section>
+                </fieldset>
+                
+                <!-- Términos y condiciones -->
+                <fieldset>
+                    <legend>
+                        <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                        Términos y Condiciones
+                    </legend>
+                    
+                    <section class="form-section">
+                        <input type="checkbox" 
+                               id="terms" 
+                               name="terms" 
+                               required 
+                               aria-required="true">
+                        <label for="terms">
+                            Acepto los 
+                            <a href="terminos.html" target="_blank">Términos y Condiciones</a> 
+                            y la 
+                            <a href="privacidad.html" target="_blank">Política de Privacidad</a> 
+                            de CaseStore
+                        </label>
+                        <small id="terms-error" class="error-message" role="alert"></small>
+                    </section>
+                </fieldset>
+                
+                <!-- Acciones del formulario -->
+                <section class="form-actions">
+                    <button type="submit" class="btn-registro">
+                        <i class="fas fa-user-plus" aria-hidden="true"></i>
+                        <span>Crear Cuenta</span>
+                    </button>
+                    
+                    <p class="login-redirect">
+                        ¿Ya tienes una cuenta? 
+                        <a href="login.html">Inicia Sesión</a>
+                    </p>
+                </section>
+            </form>
+            
+            <!-- Información adicional -->
+            <footer class="registro-footer">
+                <p><i class="fas fa-info-circle" aria-hidden="true"></i> Todos los campos marcados con <span class="required">*</span> son obligatorios</p>
+                <p><i class="fas fa-lock" aria-hidden="true"></i> Tus datos están protegidos con encriptación de extremo a extremo</p>
+            </footer>
+        </article>
     </main>
 
-    <!-- CARRITO -->
-    <div class="cart-sidebar" id="cart-sidebar">
-        <div class="cart-header">
-            <h3>Tu Carrito</h3>
-            <button class="close-cart" id="close-cart-btn">&times;</button>
-        </div>
-        <div id="cart-items" class="cart-items"></div>
-        <div class="cart-footer">
-            <p>Total: $<span id="cart-total">0</span></p>
-            <button class="checkout-btn" id="checkout-btn">Comprar</button>
-        </div>
-    </div>
-    <div class="cart-overlay" id="cart-overlay"></div>
-    
-    <!-- Modal producto -->
-    <div class="modal" id="product-modal">
-        <div class="modal-content">
-            <button class="close-modal" id="close-modal-btn">&times;</button>
-            <div id="modal-body"></div>
-        </div>
-    </div>
+    <!-- Pie de página -->
+    <footer class="main-footer">
+        <section class="container">
+            <p>&copy; 2025 CaseStore. Todos los derechos reservados.</p>
+            <nav aria-label="Enlaces legales">
+                <ul>
+                    <li><a href="terminos.html">Términos de Servicio</a></li>
+                    <li><a href="privacidad.html">Política de Privacidad</a></li>
+                    <li><a href="contacto.html">Contacto</a></li>
+                </ul>
+            </nav>
+        </section>
+    </footer>
 
-    <!-- SCRIPTS SEPARADOS -->
-    <script src="proyecto.js"></script>
-    
+    <!-- Scripts -->
+    <script src="/Script/registrarse.js" type="module"></script>
 </body>
 </html>

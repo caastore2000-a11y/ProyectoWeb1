@@ -4,19 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CaseStore 2025 - Tienda Online</title>
+    
+    <!-- CSS -->
     <link rel="stylesheet" href="/Styles/proyecto.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Configuración básica -->
+    <script>
+        // Solo configuración esencial
+        const SUPABASE_URL = 'https://tyitfffjbttftznadtrm.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5aXRmZmZqYnR0ZnR6bmFkdHJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzNzY1NDgsImV4cCI6MjA4MDk1MjU0OH0.UFw3kX6ay-hlYt-fALgu0wOOworkTIJTWcPX0CnUBqo';
+        
+        window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.log('✅ Supabase configurado');
+    </script>
 </head>
 <body>
 
     <!-- ENCABEZADO -->
     <header class="header">
         <div class="container header-content">
-            <button class="menu-btn" id="menu-btn">
+            <button class="menu-btn" aria-label="Abrir menú">
                 <span class="material-icons">menu</span>
             </button>
 
@@ -25,24 +37,24 @@
             <!-- Información del usuario -->
             <div class="user-info" id="user-info">
                 <span id="user-name">Invitado</span>
-                <button id="btn-logout" class="btn-logout" style="display: none;">
+                <button class="btn-logout" id="btn-logout">
                     <i class="fas fa-sign-out-alt"></i> Salir
                 </button>
             </div>
 
-            <button class="cart-icon" id="cart-icon">
+            <button class="cart-icon" aria-label="Abrir carrito">
                 <span class="material-icons">shopping_cart</span>
                 <span id="cart-count">0</span>
             </button>
         </div>
 
         <!-- MENÚ -->
-        <nav class="nav-menu" id="nav-menu">
-            <button class="close-btn" id="close-menu-btn">&times;</button>
-            <a href="#" id="filter-all">Todo</a>
-            <a href="#" id="filter-phones">Celulares</a>
-            <a href="#" id="filter-computers">Computadores</a>
-            <a href="#" id="filter-headphones">Audífonos</a>
+        <nav class="nav-menu" id="nav-menu" aria-label="Menú principal">
+            <button class="close-btn" aria-label="Cerrar menú">&times;</button>
+            <a href="#">Todo</a>
+            <a href="#">Celulares</a>
+            <a href="#">Computadores</a>
+            <a href="#">Audífonos</a>
             
             <div class="auth-links">
                 <a href="login.html" id="login-link">Iniciar Sesión</a>
@@ -56,67 +68,92 @@
         <h2 class="section-title" id="section-title">Nuestros Productos</h2>
         
         <!-- Barra de búsqueda -->
-        <div class="search-bar">
-            <input type="text" id="search-input" placeholder="Buscar productos...">
-            <button id="search-btn">
-                <i class="fas fa-search"></i>
-            </button>
-        </div>
+        <section class="search-section" aria-label="Buscar productos">
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Buscar productos...">
+                <button id="search-button">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </section>
         
         <!-- Filtros -->
-        <div class="filters">
-            <select id="filter-category">
-                <option value="all">Todas las categorías</option>
-            </select>
-            
-            <select id="filter-price">
-                <option value="all">Todos los precios</option>
-                <option value="low">Menos de $500,000</option>
-                <option value="medium">$500,000 - $2,000,000</option>
-                <option value="high">Más de $2,000,000</option>
-            </select>
-        </div>
+        <section class="filters-section" aria-label="Filtrar productos">
+            <div class="filters">
+                <select id="filter-category">
+                    <option value="all">Todas las categorías</option>
+                </select>
+                
+                <select id="filter-price">
+                    <option value="all">Todos los precios</option>
+                    <option value="low">Menos de $500,000</option>
+                    <option value="medium">$500,000 - $2,000,000</option>
+                    <option value="high">Más de $2,000,000</option>
+                </select>
+            </div>
+        </section>
         
         <!-- Contador de resultados -->
         <p id="results-count">Cargando productos...</p>
         
         <!-- Panel de administración -->
-        <div class="admin-panel" id="admin-panel" style="display: none;">
+        <section class="admin-section" id="admin-panel" aria-label="Panel de administración">
             <h3><i class="fas fa-cog"></i> Panel de Administración</h3>
-            <button id="add-product-btn" class="btn-add">
+            <button class="btn-add" id="add-product-btn">
                 <i class="fas fa-plus"></i> Agregar Producto
             </button>
-        </div>
+        </section>
         
         <!-- Grid de productos -->
-        <div id="product-container" class="product-grid">
-            <!-- Los productos se cargarán aquí -->
-        </div>
+        <section class="products-section" aria-label="Lista de productos">
+            <div id="product-container" class="product-grid">
+                <!-- Los productos se cargarán aquí -->
+            </div>
+        </section>
     </main>
 
     <!-- CARRITO -->
-    <div class="cart-sidebar" id="cart-sidebar">
+    <aside class="cart-sidebar" id="cart-sidebar" aria-label="Carrito de compras">
         <div class="cart-header">
             <h3>Tu Carrito</h3>
-            <button class="close-cart" id="close-cart-btn">&times;</button>
+            <button class="close-cart" aria-label="Cerrar carrito">&times;</button>
         </div>
         <div id="cart-items" class="cart-items"></div>
         <div class="cart-footer">
             <p>Total: $<span id="cart-total">0</span></p>
             <button class="checkout-btn" id="checkout-btn">Comprar</button>
         </div>
-    </div>
+    </aside>
     <div class="cart-overlay" id="cart-overlay"></div>
     
     <!-- Modal producto -->
-    <div class="modal" id="product-modal">
+    <dialog class="modal" id="product-modal">
         <div class="modal-content">
-            <button class="close-modal" id="close-modal-btn">&times;</button>
+            <button class="close-modal" aria-label="Cerrar modal">&times;</button>
             <div id="modal-body"></div>
         </div>
-    </div>
+    </dialog>
 
-    <!-- SCRIPTS SEPARADOS -->
+    <!-- Modal agregar producto (admin) -->
+    <dialog class="modal" id="add-product-modal">
+        <div class="modal-content">
+            <button class="close-modal" aria-label="Cerrar modal">&times;</button>
+            <h3>Agregar Nuevo Producto</h3>
+            <form id="product-form">
+                <input type="text" id="product-name" placeholder="Nombre del producto" required>
+                <textarea id="product-desc" placeholder="Descripción"></textarea>
+                <input type="number" id="product-price" placeholder="Precio" required>
+                <input type="number" id="product-stock" placeholder="Stock" required>
+                <select id="product-category" required>
+                    <option value="">Seleccionar categoría</option>
+                </select>
+                <input type="text" id="product-image" placeholder="URL de la imagen">
+                <button type="submit">Guardar Producto</button>
+            </form>
+        </div>
+    </dialog>
+
+    <!-- Scripts externos -->
     <script src="/Script/proyecto.js"></script>
     
 </body>
